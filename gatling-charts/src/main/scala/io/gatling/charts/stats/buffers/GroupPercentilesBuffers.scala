@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,10 @@ private[stats] trait GroupPercentilesBuffers {
 
   def updateGroupPercentilesBuffers(record: GroupRecord): Unit = {
     import record._
-    val (cumulatedResponseTimePercentilesBuffers, durationPercentilesBuffers) = percentilesBufferPair(group, status)
-    cumulatedResponseTimePercentilesBuffers.update(startBucket, cumulatedResponseTime)
-    durationPercentilesBuffers.update(startBucket, duration)
+    if (startBucket >= 0) {
+      val (cumulatedResponseTimePercentilesBuffers, durationPercentilesBuffers) = percentilesBufferPair(group, status)
+      cumulatedResponseTimePercentilesBuffers.update(startBucket, cumulatedResponseTime)
+      durationPercentilesBuffers.update(startBucket, duration)
+    }
   }
 }

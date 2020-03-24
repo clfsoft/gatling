@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,11 +73,15 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
     var count = 0
 
     var runStart = Long.MaxValue
+    var runSpecfiedStart = Long.MaxValue
     var runEnd = Long.MinValue
 
     def updateRunLimits(eventStart: Long, eventEnd: Long): Unit = {
       runStart = math.min(runStart, eventStart)
       runEnd = math.max(runEnd, eventEnd)
+    }
+    def updateRunStart(s: Long): Unit = {
+      runSpecfiedStart = math.min(runSpecfiedStart, s)
     }
 
     val runMessages = mutable.ListBuffer.empty[RunMessage]
@@ -100,6 +104,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
         case RawRunRecord(array) =>
           runMessages += RunMessage(array(1), array(2), array(3).toLong, array(4).trim, array(5).trim)
+          updateRunStart(array(3).toLong)
 
         case RawAssertionRecord(array) =>
           val assertion: Assertion = {
@@ -118,7 +123,11 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
       }
     }
 
+    runStart = math.max(runStart, runSpecfiedStart)
+
     logger.info(s"First pass done: read $count lines")
+    println("runstart:" + runStart)
+    println("runend:" + runEnd)
 
     FirstPassData(
       runStart,

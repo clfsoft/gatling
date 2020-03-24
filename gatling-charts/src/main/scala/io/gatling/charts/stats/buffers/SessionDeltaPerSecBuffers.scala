@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,10 @@ private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, 
   private val startCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
   private val endCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
 
-  def addStart(second: Int): Unit = startCounts(second) += 1
-
+  def addStart(second: Int): Unit = {
+    if (second >= 0)
+      startCounts(second) += 1
+  }
   def addEnd(second: Int): Unit = endCounts(second) += 1
 
   def endOrphan(): Unit = addEnd(runDurationInSeconds - 1)

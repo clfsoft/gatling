@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,10 @@ private[stats] trait RequestPercentilesBuffers {
 
   def updateRequestPercentilesBuffers(record: RequestRecord): Unit = {
     import record._
-    updateRequestPercentilesBuffers(Some(name), group, status, startBucket, responseTime)
-    updateRequestPercentilesBuffers(None, None, status, startBucket, responseTime)
+    if (startBucket >= 0) {
+      updateRequestPercentilesBuffers(Some(name), group, status, startBucket, responseTime)
+      updateRequestPercentilesBuffers(None, None, status, startBucket, responseTime)
+    }
+
   }
 }
